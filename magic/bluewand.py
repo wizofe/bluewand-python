@@ -1,24 +1,23 @@
 # Fast hack to get the Wand data on Python
 # Tested with the bluepy library on the KANO OS
-# Python v2.x
+# Python v3.5 compatible
 
 from bluepy import btle
 from time import sleep
-import time
-import binascii
 import sys
 
 LED_CHAR_W = '0x001e'
 LED_CHAR_UUID = '64A70009-F691-4B93-A6F4-0968F5B648F8'
 IO_SERVICE_UUID = '64A70012-F691-4B93-A6F4-0968F5B648F8'
-DATA_SERVICE_UUID ='64A70011-F691-4B93-A6F4-0968F5B648F8'
+DATA_SERVICE_UUID = '64A70011-F691-4B93-A6F4-0968F5B648F8'
+
 
 class MyDelegate(btle.DefaultDelegate):
     def __init__(self):
         btle.DefaultDelegate.__init__(self)
 
     def handleNotification(self, cHandle, data):
-        print("A notification was received: {}".format(data))    
+        print("A notification was received: {}".format(data))
 
 
 def pairWand():
@@ -35,17 +34,12 @@ def pairWand():
         print('E: I am afraid I cannot connect: {}', e)
         sys.exit(0)
 
-def enable_notify(self, chara_uuid):
-    setup_data = b"\x01\x00"
-    notify = self.ble_conn.getCharacteristics(uuid=chara_uuid)[0]
-    notify_handle = notify.getHandle() + 1
-    self.ble_conn.writeCharacteristic(notify_handle, setup_data, withResponse=True)
-
 
 def rcv_data():
     svc = blueWand.getServiceByUUID(DATA_SERVICE_UUID)
     ch = svc.getCharacteristics()[2]
     blueWand.writeCharacteristic(ch.valHandle+1, "\x01\x00".encode('utf-8'))
+
 
 def lightShow():
     print('Let me show you some magic LEDs')
@@ -72,4 +66,3 @@ while True:
     if blueWand.waitForNotifications(1.0):
         continue
     print("Waiting...")
-
