@@ -2,6 +2,9 @@
 # Tested with the bluepy library on the KANO OS
 # Python v3.5 compatible
 
+# Copyright Ioannis Valasakis <code@wizofe.uk>
+# Licensed under the GNU GPLv3.0
+
 from bluepy import btle
 from time import sleep
 import sys
@@ -9,7 +12,7 @@ import sys
 LED_CHAR_W = '0x001e'
 LED_CHAR_UUID = '64A70009-F691-4B93-A6F4-0968F5B648F8'
 IO_SERVICE_UUID = '64A70012-F691-4B93-A6F4-0968F5B648F8'
-DATA_SERVICE_UUID = '64A70011-F691-4B93-A6F4-0968F5B648F8'
+SENSOR_SERVICE_UUID = '64A70011-F691-4B93-A6F4-0968F5B648F8'
 
 
 class MyDelegate(btle.DefaultDelegate):
@@ -36,7 +39,7 @@ def pairWand():
 
 
 def rcv_data():
-    svc = blueWand.getServiceByUUID(DATA_SERVICE_UUID)
+    svc = blueWand.getServiceByUUID(SENSOR_SERVICE_UUID)
     ch = svc.getCharacteristics()[2]
     blueWand.writeCharacteristic(ch.valHandle+1, "\x01\x00".encode('utf-8'))
 
@@ -50,14 +53,12 @@ def lightShow():
     led = btle.UUID(LED_CHAR_UUID)
     ledConfig = ioService.getCharacteristics(led)[0]
 
+    # Blink the LED's
     print('DEBUG: led: {}'.format(ledConfig))
     ledConfig.write(bytes('07', 'UTF-8'))
     sleep(5)
     ledConfig.write(bytes('00', 'UTF-8'))
     sleep(0.5)
-
-    print('Show is over now. Goodbye.')
-
 
 pairWand()
 rcv_data()
