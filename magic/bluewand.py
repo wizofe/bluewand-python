@@ -24,15 +24,30 @@ class MyDelegate(btle.DefaultDelegate):
 
 
 def pairWand():
-    print("Let's pair...")
+    print("Looking for a magic wand...")
     # TODO Change to discover the closest device of type Wand-75
     try:
-        # TODO Remove hardcoded address
         global blueWand
-        blueWand = btle.Peripheral('DF:92:F0:4A:F4:D5', btle.ADDR_TYPE_RANDOM)
+
+        scanner = btle.Scanner()
+        le_devices = scanner.scan(timeout=5)
+
+        for dev in le_devices:
+            # print("D: dvc {} ({}), RSSI={} dB".format(dev.addr, \
+            # dev.addrType, dev.rssi))
+            for (adtype, desc, value) in dev.getScanData():
+                # print("D:  {}, {} = {}".format(adtype, desc, value))
+                if ("Kano-Wand" in value):
+                    print("I found a wand! A: {}".format(dev.addr))
+                    MAC_ADDRESS = dev.addr
+
+        if (MAC_ADDRESS is None):
+            print("E: MAC_ADDRESS is not set (no Wand was found :/)...")
+            exit(0)
+
+        blueWand = btle.Peripheral(MAC_ADDRESS, btle.ADDR_TYPE_RANDOM)
         blueWand.setDelegate(MyDelegate())
         print('Hey. We paired.')
-        sleep(1)
     except Exception as e:
         print('E: I am afraid I cannot connect: {}', e)
         sys.exit(0)
